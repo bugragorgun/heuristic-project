@@ -373,11 +373,6 @@ def uniformCostSearch(problem):
                 priorityqueue.push(child,newCost)
 
 
-                
-
-                
-
-
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
@@ -386,10 +381,59 @@ def nullHeuristic(state, problem=None):
     return 0
 
 
-def aStarSearch(problem, heuristic=nullHeuristic):
+def manhattanHeuristic(state, problem=None):
+    """
+    Heuristic calculation by using Manhattan Calculation.
+    """
+    return util.manhattanDistance( state, problem.getStartState())
+
+def aStarSearch(problem, heuristic=manhattanHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    node = {"state": problem.getStartState(),"directions": [] ,"pathcost":  heuristic(problem.getStartState(), problem)}
+
+    # ilk state bizim istediğimiz state mi kontrolü
+    if problem.isGoalState(node["state"]):
+        return []
+
+    # priority queue kullanılıyor (arkada queue prioritysine göre sıralamasını heapsort yapıyor. Sıralama ikinci verilen argüman olan pathcosta göre yapılır.)
+    # heapsort küçükten büyüğe sıralar bu yüzden her zaman en kısa yol queue tepesindedir ve poplandığında en kısa yol alınır
+    priorityqueue = util.PriorityQueue()
+    priorityqueue.push(node,node["pathcost"])# (arg1 sıralancak şey, arg2 priority == cost ne kadar düşük olduğu)
+
+    # visited
+    visited = []
+
+    while True:
+        # queue boş kontrol
+        if priorityqueue.isEmpty():
+            raise ValueError("Priority queue is empty.")
+        # queue başındaki elemanın alınması
+        node = priorityqueue.pop()
+
+        # elemanın gidilip gidilmediğinin kontrolü
+        if node["state"] not in visited:
+            # elemana gittim arrayi
+            visited.append(node["state"])
+            # bu eleman benim aradığım eleman mı ?
+            # bütün yollar directionsta gönder yolu
+            if problem.isGoalState(node["state"]):
+                return node["directions"]
+            
+            # olduğum konumdan nerelere gideceğim 
+            for successor in problem.getSuccessors(node["state"]):
+
+                newDirections = node["directions"] + [successor[1]]
+                newCost = problem.getCostOfActions(newDirections) + heuristic(successor[0], problem)
+                print(newCost)
+                child = {
+                    "state": successor[0],
+                    "directions": newDirections,
+                    "pathcost": newCost,
+                    "parent": node,
+                }
+
+                priorityqueue.push(child,newCost)
 
 
 # Abbreviations
